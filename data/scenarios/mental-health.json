@@ -1,0 +1,118 @@
+{
+  "id": "MENTAL_HEALTH",
+  "label": "Kryzys psychiczny / zdrowie psychiczne",
+  "description": "Wsparcie przy obniżonym nastroju, lęku, problemach ze snem. Skrining nasilenia i czasu trwania. NATYCHMIASTOWA eskalacja przy myślach samobójczych.",
+  "sources": [
+    "PHQ-9 / GAD-7 (skrócona logika, nie pełna walidacja)",
+    "WHO mhGAP Intervention Guide (2016)",
+    "ITAKA – Centrum Wsparcia dla Osób w Stanie Kryzysu Psychicznego: 800 70 2222",
+    "Telefon Zaufania dla Dorosłych: 116 123",
+    "Telefon Zaufania dla Dzieci i Młodzieży: 116 111",
+    "Centrum Zdrowia Psychicznego (CZP) – ścieżka NFZ"
+  ],
+  "greeting": "Cześć. Jestem ClearStep. Dziękuję, że tu jesteś – to już jest krok. Postaram się pomóc Ci zorientować się, co się dzieje i jaki jest dobry następny krok. Zajmie to 2-3 minuty, bez logowania. Powiedz w jednym zdaniu, jak się teraz czujesz lub co Cię tu sprowadza.",
+  "systemPrompt": "Jesteś dyspozytorem ClearStep dla młodych dorosłych w kryzysie psychicznym. Twoja rola: ciepły, niewartościujący, krótki wywiad pomagający dobrać poziom interwencji. NIE STAWIASZ DIAGNOZY. NIE używasz słów 'depresja', 'zaburzenie', 'choroba' jako etykiet wobec użytkownika. Mów o 'tym, co opisujesz', 'objawach', 'samopoczuciu'. Twoje zadanie: ZEBRAĆ FAKTY do schematu factSchema, jeden po drugim, ze szczególną delikatnością. Zasady KRYTYCZNE: (1) Pierwsze pytanie po greetingu MUSI dotyczyć bezpieczeństwa: czy są myśli o krzywdzeniu siebie / samobójcze. Quick replies: ['Tak, mam takie myśli', 'Czasem przelotnie', 'Nie, ale jest mi źle', 'Wolę nie odpowiadać']. (2) JEŚLI user wskaże aktywne myśli samobójcze LUB plan – natychmiast escalate: 'EMERGENCY' z message kierującym na 116 123 (Telefon Zaufania dla Dorosłych) lub 112. Nie zadawaj kolejnych pytań. (3) Jedno pytanie na raz, max 2 zdania w 'message'. (4) Każda wiadomość: 2-5 quick_replies sensownych w kontekście. (5) Ton: spokój, walidacja ('to brzmi jak coś trudnego', 'dziękuję, że to mówisz'), zero pouczania, zero 'rozchmurz się'. (6) Jeśli user pyta 'czy mam depresję?' – odpowiedz: 'Tego nie ocenię – to robi specjalista. Pomagam Ci dotrzeć do właściwej osoby. Zostały mi jeszcze 1-2 pytania.' (7) Po zebraniu wszystkich required facts – ready_for_decision: true. (8) Język polski, neutralny gendrowo dopóki user nie ujawni płci. (9) ZAWSZE odpowiadaj WYŁĄCZNIE w postaci JSON wg schematu.",
+  "factSchema": [
+    {
+      "key": "suicidal_ideation",
+      "label": "Myśli o samobójstwie / krzywdzeniu siebie",
+      "type": "enum",
+      "required": true,
+      "options": ["aktywne, mam plan", "tak, ale bez planu", "czasem przelotnie", "nie", "wolę nie odpowiadać"],
+      "hint": "PIERWSZE PYTANIE. Aktywne myśli z planem -> natychmiast EMERGENCY."
+    },
+    {
+      "key": "duration",
+      "label": "Od jak dawna trwa to samopoczucie",
+      "type": "enum",
+      "required": true,
+      "options": ["kilka dni", "1-2 tygodnie", "2-4 tygodnie", "ponad miesiąc", "ponad 6 miesięcy"]
+    },
+    {
+      "key": "main_symptoms",
+      "label": "Główne objawy (co najbardziej dokucza)",
+      "type": "string",
+      "required": true,
+      "hint": "Open-text, np. 'nie mogę spać, brak energii, nic mnie nie cieszy'."
+    },
+    {
+      "key": "functional_impact",
+      "label": "Wpływ na codzienne funkcjonowanie",
+      "type": "enum",
+      "required": true,
+      "options": ["radzę sobie ok", "trudno mi się skupić na nauce/pracy", "opuszczam zajęcia/pracę", "nie wstaję z łóżka"]
+    },
+    {
+      "key": "previous_help",
+      "label": "Czy korzystał*ś już z pomocy psychologa/psychiatry",
+      "type": "enum",
+      "required": true,
+      "options": ["nigdy", "kiedyś, ale dawno", "jestem w trakcie terapii", "biorę leki"]
+    },
+    {
+      "key": "support_network",
+      "label": "Czy masz osobę, do której możesz teraz zadzwonić",
+      "type": "enum",
+      "required": false,
+      "options": ["tak", "nie", "nie chcę nikogo obciążać"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "MH_THERAPY_PRIVATE",
+      "title": "Konsultacja psychologiczna",
+      "urgency": "SOON",
+      "advice": "To, co opisujesz, warto omówić z psychologiem. Pierwsza konsultacja to zazwyczaj 50 minut – diagnoza wstępna i propozycja dalszych kroków.",
+      "plan": [
+        "Pierwsza konsultacja psychologiczna w ciągu 7 dni.",
+        "Zapisz objawy i moment ich nasilenia – pomoże specjaliście.",
+        "Jeśli przed wizytą zrobi się gorzej – zadzwoń pod 116 123 (bezpłatnie, anonimowo)."
+      ],
+      "ctaLabel": "Znajdź psychologa",
+      "specialist": "Psycholog kliniczny",
+      "helplines": [
+        { "name": "Telefon Zaufania dla Dorosłych", "number": "116 123" },
+        { "name": "Telefon Zaufania dla Dzieci i Młodzieży", "number": "116 111" },
+        { "name": "ITAKA – Centrum Wsparcia w Kryzysie", "number": "800 70 2222" }
+      ]
+    },
+    {
+      "id": "MH_PSYCHIATRIST",
+      "title": "Pilna konsultacja psychiatryczna",
+      "urgency": "URGENT",
+      "advice": "Czas trwania i nasilenie tego, co opisujesz, sugerują, że warto zobaczyć się z psychiatrą, a nie tylko z psychologiem. Psychiatra może też ocenić, czy farmakoterapia byłaby pomocna.",
+      "plan": [
+        "Pilna wizyta u psychiatry w ciągu 48h (telekonsultacja akceptowalna).",
+        "Równolegle – Centrum Zdrowia Psychicznego (CZP) w Twoim rejonie (NFZ, bez skierowania).",
+        "Codziennie utrzymuj stały rytm snu i posiłków, nawet jeśli minimalnie."
+      ],
+      "ctaLabel": "Pilna telekonsultacja",
+      "specialist": "Psychiatra",
+      "helplines": [
+        { "name": "Telefon Zaufania dla Dorosłych", "number": "116 123" },
+        { "name": "ITAKA – Centrum Wsparcia w Kryzysie", "number": "800 70 2222" }
+      ]
+    },
+    {
+      "id": "MH_LIGHT_SUPPORT",
+      "title": "Wsparcie i obserwacja",
+      "urgency": "ROUTINE",
+      "advice": "Z tego, co opisujesz, sytuacja jest świeża i łagodna. Często wystarczy chwila wsparcia, sen, kontakt z bliską osobą. Ale jeśli coś się zmieni – wracaj.",
+      "plan": [
+        "Zadzwoń lub spotkaj się z osobą, której ufasz, w ciągu 24h.",
+        "Sprawdź, czy podstawy są zaopiekowane: sen 7-8h, posiłki, ruch 20 min.",
+        "Jeśli za 7 dni nie będzie lepiej, lub pojawią się nowe objawy – wróć tu i zgłoś się do psychologa."
+      ],
+      "ctaLabel": "Zapisz plan",
+      "specialist": "Psycholog (rezerwa)",
+      "helplines": [
+        { "name": "Telefon Zaufania dla Dorosłych", "number": "116 123" }
+      ]
+    }
+  ],
+  "rules": [
+    { "when": "duration in ['ponad miesiąc','ponad 6 miesięcy'] || functional_impact in ['opuszczam zajęcia/pracę','nie wstaję z łóżka']", "decisionId": "MH_PSYCHIATRIST" },
+    { "when": "duration in ['1-2 tygodnie','2-4 tygodnie'] || functional_impact == 'trudno mi się skupić na nauce/pracy'", "decisionId": "MH_THERAPY_PRIVATE" },
+    { "when": "default", "decisionId": "MH_LIGHT_SUPPORT" }
+  ]
+}

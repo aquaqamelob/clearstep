@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClearStep
 
-## Getting Started
+> **From panic to plan in 3 minutes.**
+> Decision-support PWA for young adults (18-24) facing sensitive medical situations.
 
-First, run the development server:
+## What it does
+
+ClearStep is a mobile-first chat that helps you:
+
+1. **Describe** what's happening in your own words.
+2. **Answer** a few short questions (click or type — your choice).
+3. **Receive** a deterministic action plan + a "Doctor Summary" you can show at a visit.
+
+## How it stays safe
+
+The architecture splits **empathy** from **logic**:
+
+- **AI (LLM via OpenRouter)** — only conducts the interview. Never diagnoses, never recommends drugs.
+- **Deterministic decision engine** (`lib/scenarios/decide.ts`) — pure TypeScript that turns collected facts into one of a few hand-written, source-cited recommendations.
+- **Hard-coded red-flag pre-filter** (`lib/safety.ts`) — runs on every user message *before* the LLM. Suicide / chest pain / hemorrhage etc. → instant 112 redirect.
+- **Mid-conversation safety net** — LLM can also flag `escalate: "EMERGENCY"`.
+
+You can audit every scenario at `/admin`.
+
+## Tech stack
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind v4** + hand-rolled UI primitives (cva + clsx + tailwind-merge)
+- **OpenRouter** via `openai` SDK (default `meta-llama/llama-3.3-70b-instruct`, swappable to Claude/GPT/Gemini via `LLM_MODEL` env)
+- **Zod** validates both LLM output and scenario JSON files at boot
+- **PWA**: `app/manifest.ts` + `public/sw.js` + security headers
+- Bun for package management
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+bun install
+echo "OPENROUTER_API_KEY=sk-or-v1-your_key_here" > .env.local
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Get an OpenRouter API key at <https://openrouter.ai/keys>. OpenRouter gives you one credential for hundreds of models (Llama, Claude, GPT, Gemini, Mistral, etc.) — swap by setting `LLM_MODEL`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open <http://localhost:3000>. To inspect scenarios: <http://localhost:3000/admin>.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+For PWA install testing on a phone, you need HTTPS:
 
-## Learn More
+```bash
+bun next dev --experimental-https
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scenarios
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Currently shipped:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **PREGNANCY_SCARE** — Emergency contraception window decisions, post-window testing plan.
+- **MENTAL_HEALTH** — PHQ-9-style screen with hard suicidal-ideation gate.
 
-## Deploy on Vercel
+Each scenario lives in `data/scenarios/<id>.json` and declares:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `factSchema` — what facts the LLM must collect
+- `decisions` — pre-written, source-cited recommendation cards
+- `rules` — human-readable mapping (executed deterministically in TS)
+- `systemPrompt` — the only thing the LLM "knows"
+- `sources` — medical references
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project layout
+
+```
+app/
+  api/
+    chat/route.ts         # main interview endpoint
+    scenarios/[id]/       # read-only scenario meta
+  admin/                  # audit viewer (read-only)
+  components/             # feature components (chat bubble, decision card, etc.)
+  page.tsx                # the chat
+  layout.tsx              # PWA metadata, SW register
+  manifest.ts             # web app manifest
+  globals.css             # Tailwind + design tokens
+components/ui/            # primitive UI (button, card, input, badge, alert)
+data/scenarios/           # source-cited scenario JSONs
+lib/
+  llm.ts                  # singleton LLM client (OpenRouter, OpenAI-compatible)
+  intent-rules.ts         # deterministic intent pre-classifier (Polish slang)
+  safety.ts               # red-flag regex pre-filter
+  scenarios/
+    types.ts              # Zod schemas
+    loader.ts             # validates scenarios at boot
+    decide.ts             # deterministic decision engine
+  utils.ts                # cn() helper
+public/
+  sw.js                   # service worker
+  icon-*.png              # generated by scripts/gen-icons.mjs
+scripts/
+  gen-icons.mjs           # rebuild PWA icons
+```
+
+## Pitch one-liner
+
+> *"AI in our system is just a translator. Decisions are made by a deterministic medical algorithm — rigid, source-cited, and immune to hallucination. AI only makes that algorithm speak the language of a stressed 19-year-old."*

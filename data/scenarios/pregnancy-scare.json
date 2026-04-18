@@ -1,0 +1,121 @@
+{
+  "id": "PREGNANCY_SCARE",
+  "label": "Możliwa nieplanowana ciąża",
+  "description": "Wsparcie po stosunku bez zabezpieczenia lub po awarii antykoncepcji. Zbiera fakty potrzebne do wyboru ścieżki: antykoncepcja awaryjna vs test ciążowy vs konsultacja ginekologiczna.",
+  "sources": [
+    "WHO Emergency Contraception Fact Sheet (2021)",
+    "ChPL EllaOne (octan uliprystalu) – do 120h",
+    "ChPL Escapelle (lewonorgestrel) – do 72h, najwyższa skuteczność <12h",
+    "FIGO Statement on Emergency Contraception (2017)",
+    "mp.pl – Antykoncepcja awaryjna (kompendium)"
+  ],
+  "greeting": "Cześć. Jestem ClearStep. Spróbuję pomóc Ci ułożyć konkretny plan działania w 2-3 minuty. Wszystko, co tu napiszesz, zostaje na Twoim telefonie – bez logowania, bez konta. Zacznijmy: opowiedz w jednym zdaniu, co się stało.",
+  "systemPrompt": "Jesteś dyspozytorem medycznym ClearStep dla młodych dorosłych (18-24) w Polsce. Twoja rola: empatyczny, konkretny, krótki wywiad w stresującej sytuacji potencjalnej nieplanowanej ciąży. NIE STAWIASZ DIAGNOZY. NIE PODAJESZ porady medycznej. NIE rekomendujesz konkretnych leków, dawek ani procedur. Twoje zadanie to ZEBRAĆ FAKTY do schematu factSchema, jeden po drugim, naturalnie i z empatią. Zasady: (1) Zawsze pytaj o JEDNĄ rzecz na raz. (2) Krótko: maks. 2 zdania w polu 'message'. (3) Dla każdej wiadomości generuj 2-5 sensownych quick_replies, które user może kliknąć zamiast pisać (np. dla pytania o czas: ['<12h temu', '12-72h temu', '72-120h temu', '>120h temu']). User może też napisać wolno tekstem – wtedy w następnej turze sparafrazuj jego odpowiedź i potwierdź zapis do facts_collected. (4) Kiedy zebrałeś wszystkie required facts ze schematu – ustaw ready_for_decision: true i NIE pytaj więcej. (5) Jeśli user opisuje SYTUACJĘ ZAGROŻENIA ŻYCIA (silne krwawienie, omdlenia, ostry ból brzucha, samobójstwo) – ustaw escalate: 'EMERGENCY' i message kierujące na 112. (6) Jeśli user pyta o konkretną poradę medyczną ('co mam wziąć?', 'czy będę w ciąży?') – odpowiedz: 'Tę decyzję podejmie lekarz na podstawie podsumowania, które przygotowuję. Zostały mi jeszcze 1-2 pytania.' (7) Język polski, ton: spokojny, bez paniki, bez pouczania, bez moralizowania (zwłaszcza co do współżycia). Zwracaj się do użytkownika neutralnie płciowo, dopóki nie ujawni płci. (8) ZAWSZE odpowiadaj WYŁĄCZNIE w postaci JSON wg podanego schematu.",
+  "factSchema": [
+    {
+      "key": "time_since_upsi",
+      "label": "Czas od stosunku bez zabezpieczenia",
+      "type": "enum",
+      "required": true,
+      "options": ["<12h", "12-72h", "72-120h", ">120h", "nie pamiętam"],
+      "hint": "Kluczowe dla okna antykoncepcji awaryjnej."
+    },
+    {
+      "key": "contraception_used",
+      "label": "Czy była używana antykoncepcja",
+      "type": "enum",
+      "required": true,
+      "options": ["żadna", "prezerwatywa pękła/zsunęła się", "tabletka pominięta", "inna sytuacja"],
+      "hint": "Determinuje, czy w ogóle potrzebna jest EC."
+    },
+    {
+      "key": "cycle_phase",
+      "label": "Gdzie aktualnie w cyklu (jeśli wiadomo)",
+      "type": "enum",
+      "required": false,
+      "options": ["okres trwa", "tuż po okresie", "około owulacji", "tuż przed okresem", "nie wiem / nie miesiączkuję"],
+      "hint": "Pomocnicze dla oceny ryzyka, nie blokujące."
+    },
+    {
+      "key": "age",
+      "label": "Wiek",
+      "type": "number",
+      "required": true,
+      "hint": "Wpływa na ścieżkę (≥15 dla EllaOne OTC, lekarz wymagany dla escapelle <15)."
+    },
+    {
+      "key": "chronic_meds",
+      "label": "Stałe leki / choroby przewlekłe",
+      "type": "string",
+      "required": true,
+      "hint": "Hepatic enzyme inducers (rifampicin, leki p/padaczkowe, dziurawiec) zmniejszają skuteczność EC."
+    },
+    {
+      "key": "weight_over_70",
+      "label": "Waga > 70 kg / BMI > 26",
+      "type": "boolean",
+      "required": false,
+      "hint": "Skuteczność lewonorgestrelu obniżona przy wyższej masie ciała."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "EC_WINDOW_TIGHT",
+      "title": "Antykoncepcja awaryjna – działaj teraz",
+      "urgency": "URGENT",
+      "advice": "Jesteś w oknie czasowym, w którym antykoncepcja awaryjna ma najwyższą skuteczność. Decyzję o konkretnym preparacie i dawce podejmie lekarz lub farmaceuta na podstawie Twojego podsumowania.",
+      "plan": [
+        "Skontaktuj się z lekarzem (e-recepta) lub farmaceutą jeszcze dziś – każda godzina zmniejsza skuteczność.",
+        "Po wizycie / odbiorze recepty – odebranie leku w aptece dyżurnej.",
+        "Za 3 tygodnie wykonaj test ciążowy potwierdzający (z moczu, pierwszego porannego)."
+      ],
+      "ctaLabel": "Znajdź lekarza dziś",
+      "specialist": "Ginekolog / lekarz POZ / farmaceuta"
+    },
+    {
+      "id": "EC_WINDOW_LATE",
+      "title": "Ostatnie godziny okna EC",
+      "urgency": "URGENT",
+      "advice": "Jesteś w ostatnim oknie, w którym antykoncepcja awaryjna może jeszcze być skuteczna. Tu liczy się konsultacja ginekologiczna, nie samodzielna decyzja.",
+      "plan": [
+        "Pilna konsultacja z ginekologiem dziś (telekonsultacja wystarczy).",
+        "Lekarz oceni wybór preparatu na podstawie podsumowania.",
+        "Test ciążowy za 3 tygodnie niezależnie od decyzji o EC."
+      ],
+      "ctaLabel": "Pilna telekonsultacja",
+      "specialist": "Ginekolog"
+    },
+    {
+      "id": "TEST_WINDOW",
+      "title": "Okno antykoncepcji awaryjnej minęło – plan testowania",
+      "urgency": "SOON",
+      "advice": "Minęło ponad 120 godzin – antykoncepcja awaryjna już nie zadziała. Najlepszym krokiem jest test ciążowy w odpowiednim oknie i konsultacja ginekologiczna.",
+      "plan": [
+        "Test ciążowy z moczu wykonaj minimum 14 dni od stosunku (pierwszy poranny mocz).",
+        "Jeśli wynik pozytywny lub niepewny – pilna wizyta u ginekologa w 48h.",
+        "Niezależnie od wyniku – konsultacja ginekologiczna w ciągu 7 dni dla planowania dalszej antykoncepcji."
+      ],
+      "ctaLabel": "Zarezerwuj wizytę u ginekologa",
+      "specialist": "Ginekolog"
+    },
+    {
+      "id": "GENERAL_CONSULT",
+      "title": "Konsultacja ginekologiczna",
+      "urgency": "SOON",
+      "advice": "Sytuacja nie wymaga działania w ciągu godzin, ale warto poukładać dalszą antykoncepcję i ewentualną kontrolę.",
+      "plan": [
+        "Konsultacja ginekologiczna w ciągu tygodnia.",
+        "Omówienie regularnej antykoncepcji dopasowanej do Ciebie.",
+        "Jeśli pojawi się opóźniona miesiączka – test ciążowy."
+      ],
+      "ctaLabel": "Zarezerwuj wizytę",
+      "specialist": "Ginekolog"
+    }
+  ],
+  "rules": [
+    { "when": "time_since_upsi == '<12h' || time_since_upsi == '12-72h'", "decisionId": "EC_WINDOW_TIGHT" },
+    { "when": "time_since_upsi == '72-120h'", "decisionId": "EC_WINDOW_LATE" },
+    { "when": "time_since_upsi == '>120h'", "decisionId": "TEST_WINDOW" },
+    { "when": "default", "decisionId": "GENERAL_CONSULT" }
+  ]
+}
