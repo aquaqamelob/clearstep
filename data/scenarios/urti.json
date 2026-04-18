@@ -1,0 +1,100 @@
+{
+    "id": "TRIAGE_URTI",
+    "label": "Przeziębienie / infekcja górnych dróg oddechowych (J00–J06)",
+    "description": "Triaż wywiadowczy: odróżnienie łagodnego IGDO od czerwonych flag dolnych dróg oddechowych i subiektywnej „duszności” przy zatkanym nosie (cyberchondria). Na podstawie research.txt – scenariusz 1 (ICD-10 J00–J06).",
+    "sources": [
+      "Research.txt – Scenariusz 1 (IGDO vs dolne drogi oddechowe, triaż ambulatoryjny)",
+      "ICD-10: J00–J06 – ostre infekcje górnych dróg oddechowych"
+    ],
+    "greeting": "Cześć. Jestem ClearStep. Pomogę przejść krótki, konkretny wywiad: chodzi o to, czy objawy z górnych dróg oddechowych są w typie łagodnym, czy jest coś alarmowego. Opisz w jednym zdaniu, co Cię niepokoi (np. katar, gardło, „brak tchu”).",
+    "systemPrompt": "Jesteś asystentem wywiadu triażowego ClearStep (Polska). Scenariusz: ostre zakażenie górnych dróg oddechowych vs obawa o płuca / duszność / „zawał od nosa”. NIE STAWIASZ DIAGNOZY. Zbierasz fakty do factSchema: jedno pytanie na raz, spokojnie, max 2 zdania w message. Inspiracja: najpierw sprawdź, czy osoba potrafi wypowiedzieć pełne zdanie bez łapania oddechu (proxy braku ostrej duszności); potem temperatura; potem LOKALIZACJA dyskomfortu oddechowego (nos/gardło vs głęboko w klatce); potem czerwone flagi dolnych dróg (duszność spoczynkowa, ból opłucnowy, kaszel z ropą/krwią, gorączka >39°C nietłumiąca się). Jeśli pojawiają się alarmy życiowe – escalate: EMERGENCY. Quick replies po polsku, 2–5 sztuk. Gdy wszystkie wymagane fakty zebrane – ready_for_decision: true. ZAWSZE JSON wg schematu ChatTurn.",
+    "factSchema": [
+      {
+        "key": "fluent_full_sentences",
+        "label": "Czy możesz mówić pełnymi zdaniami bez łapania oddechu (tak jak w rozmowie)",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie jestem pewien"],
+        "hint": "Klucz do wykluczenia ostrej duszności; z research: płynna mowa wyklucza w tej chwili ostrą duszność płucną."
+      },
+      {
+        "key": "fever_level",
+        "label": "Temperatura / gorączka",
+        "type": "enum",
+        "required": true,
+        "options": ["nie mierzyłem/am", "poniżej 38°C", "38–38,9°C (podgorączkowy)", "39°C lub więcej", "bardzo wysoka i nie spada po lekach"],
+        "hint": "Z research: >39°C i oporna na leczenie – czerwona flaga."
+      },
+      {
+        "key": "breath_discomfort_site",
+        "label": "Gdzie najbardziej czujesz „brak tchu” / dyskomfort oddechowy",
+        "type": "enum",
+        "required": true,
+        "options": ["głównie nos i gardło / zablokowany nos", "głęboko w klatce piersiowej / jakby płuca", "mieszane / nie potrafię opisać"],
+        "hint": "Odróżnienie obrzęku śluzówki od dolnych dróg."
+      },
+      {
+        "key": "lower_airway_red_flags",
+        "label": "Czy są jednoczeście: spoczynkowa duszność, silny ból w klatce przy oddychaniu (jak przy zapaleniu opłucnej), kaszel z ropną zieloną wydzieliną lub krwią",
+        "type": "enum",
+        "required": true,
+        "options": ["nie", "tak, coś z tego występuje", "nie jestem pewien"],
+        "hint": "Z research: flagi dolnych dróg oddechowych → pilna ocena."
+      },
+      {
+        "key": "symptom_days",
+        "label": "Od ilu dni trwają objawy",
+        "type": "enum",
+        "required": true,
+        "options": ["1–2 dni", "3–7 dni", "ponad 7 dni"],
+        "hint": "Z research: >7 dni lub nagły skok temperatury → kontakt z POZ."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "URTI_EMERGENCY_CARE",
+        "title": "Pilna ocena medyczna (SOR / 112 wg sytuacji)",
+        "urgency": "EMERGENCY",
+        "advice": "Z zebranych odpowiedzi wynika ryzyko ciężkiej niewydolności oddechowej lub powikłania dolnych dróg oddechowych. To wymaga oceny osoby z wykształceniem medycznym, nie czatu.",
+        "plan": [
+          "Jeśli czujesz się teraz znacząco gorzej (nie możesz dokończyć zdania, sinisz, ból w klatce przy oddychaniu) – zadzwoń pod 112.",
+          "Jeśli jest ciężko, ale stabilniej – udaj się do SOR lub zadzwoń po teleporadę nagłą – nie czekaj na „sam przejdzie”.",
+          "Nie polegaj na internecie w tej sytuacji – potrzebny jest żywy kontakt medyczny."
+        ],
+        "ctaLabel": "Wezwij pomoc / jedź na SOR",
+        "specialist": "SOR / lekarz ratunkowy"
+      },
+      {
+        "id": "URTI_SELF_CARE",
+        "title": "Typowy obraz IGDO – samoopieka i obserwacja",
+        "urgency": "ROUTINE",
+        "advice": "Wywiad wskazuje na łagodny przebieg infekcji górnych dróg oddechowych bez czerwonych flag dolnych dróg. To nie jest sytuacja do karetki z powodu „samego przeziębienia”.",
+        "plan": [
+          "Pij dużo płynów w temperaturze pokojowej.",
+          "Objawowo: paracetamol/ibuprofen zgodnie z ulotką przy bólu lub gorączce (jeśli nie masz przeciwwskazań).",
+          "Krótkotrwały spray do nosa z ksylometazoliną może pomóc na noc – maks. kilka dni, wg ulotki.",
+          "Jeśli objawy utrzymują się ponad tydzień lub nagle pojawi się wysoka gorączka – skontaktuj się z POZ."
+        ],
+        "ctaLabel": "Zapisz plan domowy",
+        "specialist": "Lekarz POZ (wtórnie)"
+      },
+      {
+        "id": "URTI_POZ_SOON",
+        "title": "Kontakt z POZ (teleporada / wizyta)",
+        "urgency": "SOON",
+        "advice": "Objawy są raczej górnych dróg, ale czas trwania lub temperatura uzasadniają kontakt z lekarzem pierwszego kontaktu – nie jako „ratunek życia”, lecz planowa ocena.",
+        "plan": [
+          "Umów teleporadę lub wizytę w POZ w najbliższych dniach.",
+          "Opisz dokładnie czas trwania, temperaturę i to, czy były czerwone flagi dolnych dróg.",
+          "W razie gwałtownego pogorszenia oddychania – 112."
+        ],
+        "ctaLabel": "Kontakt z POZ",
+        "specialist": "Lekarz POZ"
+      }
+    ],
+    "rules": [
+      { "when": "fluent_full_sentences == 'nie' || lower_airway_red_flags == 'tak, coś z tego występuje' || fever_level == 'bardzo wysoka i nie spada po lekach'", "decisionId": "URTI_EMERGENCY_CARE" },
+      { "when": "symptom_days == 'ponad 7 dni' || fever_level == '39°C lub więcej'", "decisionId": "URTI_POZ_SOON" },
+      { "when": "default", "decisionId": "URTI_SELF_CARE" }
+    ]
+  }

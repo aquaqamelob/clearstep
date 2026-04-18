@@ -187,7 +187,7 @@ export function Onboarding() {
                   className="h-28 w-28 select-none"
                 />
               ) : current.Icon ? (
-                <div className="flex h-24 w-24 items-center justify-center rounded-[1.75rem] bg-foreground/5">
+                <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-foreground/5">
                   <current.Icon
                     className={cn("h-11 w-11 text-foreground/70")}
                     strokeWidth={1.75}
@@ -210,7 +210,7 @@ export function Onboarding() {
       <button
         type="button"
         onClick={next}
-        className="h-[44px] bg-foreground text-background rounded-lg mt-6 w-full font-medium transition-opacity hover:opacity-90 active:opacity-80"
+        className="h-[48px] bg-foreground text-background rounded-2xl mt-6 w-full font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
       >
         {current.cta}
       </button>

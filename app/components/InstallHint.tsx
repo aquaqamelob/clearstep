@@ -52,7 +52,7 @@ export function InstallHint() {
         type="button"
         onClick={onClick}
         aria-label="Zainstaluj aplikację"
-        className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
+        className="flex h-9 w-9 items-center justify-center rounded-xl text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
       >
         <Download className="h-4 w-4" />
       </button>
@@ -63,7 +63,7 @@ export function InstallHint() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-[10px] bg-card shadow-xl p-4"
+            className="glass-strong w-full max-w-md rounded-[22px] p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
@@ -100,7 +100,7 @@ export function InstallHint() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-[44px] bg-foreground text-background rounded-lg w-full mt-6 font-medium transition-opacity hover:opacity-90"
+              className="h-[48px] bg-foreground text-background rounded-2xl w-full mt-6 font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               Rozumiem
             </button>

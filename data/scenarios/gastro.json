@@ -1,0 +1,78 @@
+{
+    "id": "TRIAGE_GASTRO",
+    "label": "Ból brzucha / niestrawność / zatrucie (R10, K52)",
+    "description": "Triaż: ostry nieżyt żołądkowo-jelitowy vs „ostry brzuch” chirurgiczny. Na podstawie research.txt – scenariusz 2 (ICD-10 R10 / K52).",
+    "sources": [
+      "Research.txt – Scenariusz 2 (zatrucie pokarmowe vs zapalenie otrzewnej / ostry brzuch)",
+      "ICD-10: R10 – ból brzucha; K52 – inne zapalenia żołądka i jelit"
+    ],
+    "greeting": "Cześć. Jestem ClearStep. Przejdziesz krótki wywiad o bólu brzucha i/lub wymiotach/biegunce – chodzi o to, czy to wygląda na typowe zatrucie/niestrawność, czy są alarmy chirurgiczne. Opisz w jednym zdaniu, co się dzieje.",
+    "systemPrompt": "Jesteś asystentem triażu ClearStep. Scenariusz: ból brzucha po posiłku / biegunka / wymioty – odróżnienie zatrucia pokarmowego od ostrego brzucha (otrzewnowego). NIE STAWIASZ DIAGNOZY. Zbieraj fakty po jednym. Kluczowe z research: rozlane skurcze z ulgą po wypróżnieniu vs stały punktowy ból; miękki brzuch i brak bólu przy gwałtownym puszczeniu ucisku (ujemny Blumberg) vs twardy brzuch; krew we wymiocinach / smolisty stolec. Przy alarmach – escalate EMERGENCY. Quick replies po polsku. ready_for_decision: true gdy wszystkie required zebrane. JSON wg ChatTurn.",
+    "factSchema": [
+      {
+        "key": "pain_pattern",
+        "label": "Charakter bólu",
+        "type": "enum",
+        "required": true,
+        "options": ["rozlane skurcze / fale bólu", "stały, coraz silniejszy w jednym miejscu", "nie jestem pewien"],
+        "hint": "Z research: skurczowy z ulgą po toalecie vs stały zapalny."
+      },
+      {
+        "key": "relief_after_bowel_or_gas",
+        "label": "Czy po wypróżnieniu lub puszczeniu gazów jest choć chwilowa ulga",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie wiem"],
+        "hint": "Przy zatruciu często jest ulga; przy otrzewnowym – nie."
+      },
+      {
+        "key": "abdomen_soft_no_rebound",
+        "label": "Czy po delikatnym ucisku brzucha jest miękko i NIE ma gwałtownego bólu przy szybkim puszczeniu rąk (test odczuwania otrzewnowego w uproszczeniu)",
+        "type": "enum",
+        "required": true,
+        "options": ["tak, brzuch miękki, puszczenie nie boli dramatycznie", "nie – twardy brzuch lub skok bólu przy puszczeniu", "nie robiłem/am / boję się"],
+        "hint": "Ujemny objaw Blumberga w domowym przybliżeniu – z research."
+      },
+      {
+        "key": "gi_bleeding_signs",
+        "label": "Czy we wymiocinach jest świeża krew lub „fusy z kawy”, a stolec czarny jak smoła",
+        "type": "enum",
+        "required": true,
+        "options": ["nie", "tak lub podejrzewam", "nie wiem"],
+        "hint": "Krwawienie z UKP – pilna ocena."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "GASTRO_EMERGENCY",
+        "title": "Pilna pomoc medyczna (112 / SOR)",
+        "urgency": "EMERGENCY",
+        "advice": "Z odpowiedzi wynika podejrzenie ostrego brzucha lub krwawienia z przewodu pokarmowego. Wymagana ocena kliniczna, nie czat.",
+        "plan": [
+          "Zadzwoń pod 112 lub jedź na SOR – nie czekaj na samopoczucie „może przejdzie”.",
+          "Nie jedz i nie pij dużych ilości na siłę przed oceną lekarza.",
+          "Jeśli tracisz dużo krwi z odbytu lub jesteś na skraju omdlenia – 112."
+        ],
+        "ctaLabel": "Wezwij pomoc",
+        "specialist": "SOR / chirurgia"
+      },
+      {
+        "id": "GASTRO_HOME_ORAL_REHYDRATION",
+        "title": "Obraz zatrucia pokarmowego – nawodnienie i obserwacja",
+        "urgency": "ROUTINE",
+        "advice": "Wywiad jest spójny z łagodnym ostrym nieżytem żołądkowo-jelitowym bez czerwonych flag chirurgicznych – z research: nacisk na prewencję odwodnienia, nie na karetkę „na zapas”.",
+        "plan": [
+          "Przez kilka godzin ogranicz stałe pokarmy; pij małymi łykami wodę lub elektrolity z apteki.",
+          "Unikaj „łapczywego” picia dużych szklanek naraz – może prowokować wymioty.",
+          "Rozkurcz (np. drotaweryna) wg ulotki jeśli masz i nie masz przeciwwskazań.",
+          "Jeśli ból stanie się stały w jednym punkcie, brzuch stwardnieje lub pojawi się krew – natychmiast SOR."
+        ],
+        "ctaLabel": "Zapisz plan",
+        "specialist": "Lekarz POZ (jeśli nie poprawa w 24–48h)"
+      }
+    ],
+    "rules": [
+      { "when": "pain_pattern == 'stały, coraz silniejszy w jednym miejscu' || abdomen_soft_no_rebound == 'nie – twardy brzuch lub skok bólu przy puszczeniu' || gi_bleeding_signs == 'tak lub podejrzewam'", "decisionId": "GASTRO_EMERGENCY" },
+      { "when": "default", "decisionId": "GASTRO_HOME_ORAL_REHYDRATION" }
+    ]
+  }

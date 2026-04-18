@@ -1,0 +1,101 @@
+{
+    "id": "TRIAGE_CHEST",
+    "label": "Ból w klatce – lęk / hiperwentylacja vs serce (R07, F41)",
+    "description": "Triaż: odróżnienie cech niedokrwiennych od bólu kostno-mięśniowego i hiperwentylacji przy stresie. Na podstawie research.txt – scenariusz 3 (R07 / F41).",
+    "sources": [
+      "Research.txt – Scenariusz 3 (OZW vs atak paniki, hiperwentylacja, ból zależny od ucisku)",
+      "ICD-10: R07 – ból gardła i w klatce piersiowej; F41 – inne zaburzenia lękowe"
+    ],
+    "greeting": "Cześć. Jestem ClearStep. Krótki wywiad o tym, jak czujesz się w klatce piersiowej – bez zamienników diagnozy, tylko zebranie faktów, by dobrać bezpieczną ścieżkę. Opisz w jednym zdaniu, co się dzieje.",
+    "systemPrompt": "Jesteś asystentem triażu ClearStep. Scenariusz: ból/kłucie w klatce przy stresie vs obawa o zawał. NIE STAWIASZ DIAGNOZY. NIE zalecasz aspiryny ani leków – z research: kwas acetylosalicylowy bez wyraźnych objawów niedokrwiennych i bez lekarza jest niewłaściwy. Pytaj po kolei: czy ból jest miażdżący pod mostkiem z promieniowaniem typowym dla dławicy vs kłujący i gorszy przy dotyku żeber/ruchu; czy są parestezje ust/rąk (hiperwentylacja); wiek i wyraźny trigger stresowy. Jeśli obraz klasycznie wysokiego ryzyka sercowego lub niepewność życiowa – escalate EMERGENCY. Jeśli podręcznikowo raczej panika/kostny – gotowy plan deeskalacji oddechu. JSON ChatTurn, quick replies po polsku.",
+    "factSchema": [
+      {
+        "key": "ischemic_like_pain",
+        "label": "Czy ból to mocny, miażdżący ucisk pod mostkiem z promieniowaniem do żuchwy/ramienia – niezależny od dotykania klatki",
+        "type": "enum",
+        "required": true,
+        "options": ["tak, tak to wygląda", "nie – raczej kłuje/gniecie w jednym miejscu", "nie potrafię opisać"],
+        "hint": "Z research: klasyczny wzorzec wymaga pilnej ścieżki medycznej."
+      },
+      {
+        "key": "pain_worse_palpation_or_move",
+        "label": "Czy ból wyraźnie nasila się, gdy naciskasz palcem żebra albo ruszasz tułowiem/głęboko oddychasz",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie wiem"],
+        "hint": "Ból z ucisku – sugeruje pochodzenie kostno-mięśniowe (z research)."
+      },
+      {
+        "key": "hyperventilation_signs",
+        "label": "Czy masz szybki płytki oddech oraz mrowienie ust albo palców",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie wiem"],
+        "hint": "Parestezje przy hiperwentylacji – z research."
+      },
+      {
+        "key": "age_band",
+        "label": "Wiek (orientacyjnie)",
+        "type": "enum",
+        "required": true,
+        "options": ["poniżej 30 lat", "30–50 lat", "powyżej 50 lat"],
+        "hint": "Ryzyko sercowe rośnie z wiekiem; u młodych inna równowaga prawdopodobieństw."
+      },
+      {
+        "key": "acute_stress_trigger",
+        "label": "Czy był wyraźny silny stres tuż przed objawami",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie wiem"],
+        "hint": "Kontekst z research – kłótnia, presja w pracy."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "CHEST_EMERGENCY_CARDIAC_WORKUP",
+        "title": "Pilna ocena kardiologiczna – nie lecz się sam/a z internetu",
+        "urgency": "EMERGENCY",
+        "advice": "Opisane cechy mogą odpowiadać sytuacji wymagającej natychmiastowej oceny medycznej (w tym EKG/oddział). ClearStep nie zastępuje SOR.",
+        "plan": [
+          "Zadzwoń pod 112 lub udaj się do SOR – jeśli masz jakiekolwiek wątpliwości co do ciężkości, wolno „nad reagować”.",
+          "Nie polegaj na samoleczeniu ani na radach z czatu.",
+          "Unikaj wysiłku do czasu oceny lekarza."
+        ],
+        "ctaLabel": "Pilny kontakt medyczny",
+        "specialist": "SOR / kardiologia"
+      },
+      {
+        "id": "CHEST_PANIC_PATTERN",
+        "title": "Obraz typowy dla ataku lęku / hiperwentylacji – deeskalacja oddechu",
+        "urgency": "URGENT",
+        "advice": "Zebrany wywiad wskazuje raczej na reakcję lękową z hiperwentylacją i/lub ból z obrębu ściany klatki niż na klasyczny scenariusz do samodzielnej „terapii aspiryną”. Z research: nie zażywaj kwasu acetylosalicylowego „na wszelki wypadek” bez oceny lekarza.",
+        "plan": [
+          "Spowolnij oddech: krótki wdech nosem, dłuższy wydech ustami; 5–7 minut powtarzaj.",
+          "Możesz pomóc sobie łagodnym rebreathe przez dłonie przy twarzy – nie długo i nie z workiem foliowym w skrajnych sytuacjach bez nadzoru.",
+          "Jeśli napady wracają i ograniczają życie – zaplanuj wizytę u lekarza POZ (skierowanie do psychiatry/psychologa).",
+          "Jeśli pojawi się ból jak ucisk z promieniowaniem, duszność w spoczynku, omdlenie – 112."
+        ],
+        "ctaLabel": "Zapisz techniki oddechu",
+        "specialist": "Lekarz POZ / psychiatria (planowo)"
+      },
+      {
+        "id": "CHEST_UNCERTAIN_POZ",
+        "title": "Niejednoznaczny obraz – kontakt z lekarzem w krótkim terminie",
+        "urgency": "SOON",
+        "advice": "Nie da się jednoznacznie zamknąć wywiadu na czacie. Bezpieczniej jest mieć krótką ocenę lekarską.",
+        "plan": [
+          "Teleporada lub wizyta w POZ w ciągu 24–48 h (szybciej jeśli gorzej).",
+          "Monitoruj: duszność w spoczynku, omdlenie, poty zimne, ból promieniujący – wtedy 112.",
+          "Nie kombinuj samoleczenia lekami przeciwzakrzepowymi z własnej inicjatywy."
+        ],
+        "ctaLabel": "Umów kontakt z POZ",
+        "specialist": "Lekarz POZ"
+      }
+    ],
+    "rules": [
+      { "when": "ischemic_like_pain == 'tak, tak to wygląda'", "decisionId": "CHEST_EMERGENCY_CARDIAC_WORKUP" },
+      { "when": "age_band == 'powyżej 50 lat' && ischemic_like_pain == 'nie potrafię opisać'", "decisionId": "CHEST_UNCERTAIN_POZ" },
+      { "when": "pain_worse_palpation_or_move == 'tak' || hyperventilation_signs == 'tak'", "decisionId": "CHEST_PANIC_PATTERN" },
+      { "when": "default", "decisionId": "CHEST_UNCERTAIN_POZ" }
+    ]
+  }

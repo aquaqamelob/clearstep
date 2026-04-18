@@ -48,7 +48,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
   const slot = mockArbitrageSlot(decision.specialist);
 
   return (
-    <div className="rounded-lg border border-foreground/10 bg-card overflow-hidden animate-in">
+    <div className="glass rounded-3xl overflow-hidden animate-in">
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-medium text-foreground text-lg leading-tight">
@@ -73,7 +73,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
           <ol className="space-y-2 mt-2">
             {decision.plan.map((step, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-foreground text-background text-[11px] font-medium mt-0.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg bg-foreground text-background text-[11px] font-medium mt-0.5">
                   {i + 1}
                 </span>
                 <span className="text-[14px] leading-6 text-foreground">
@@ -84,7 +84,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
           </ol>
         </div>
 
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3.5">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3.5">
           <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-emerald-700">
             <CalendarClock className="h-3.5 w-3.5" /> Znaleziono odwołaną wizytę
           </div>
@@ -117,7 +117,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
 
         <button
           type="button"
-          className="h-[44px] bg-foreground text-background rounded-lg w-full font-medium inline-flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:opacity-80"
+          className="h-[48px] bg-foreground text-background rounded-2xl w-full font-medium inline-flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
         >
           <CheckCircle2 className="h-4 w-4" />
           {decision.ctaLabel}
@@ -133,7 +133,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
                 <a
                   key={h.number}
                   href={`tel:${h.number.replace(/\s/g, "")}`}
-                  className="flex items-center justify-between rounded-lg px-3 h-10 text-[14px] border border-foreground/10 bg-background hover:bg-foreground/5 transition-colors"
+                  className="glass flex items-center justify-between rounded-xl px-3 h-11 text-[14px] transition-all hover:scale-[1.005]"
                 >
                   <span className="flex items-center gap-2 text-foreground">
                     <Phone className="h-3.5 w-3.5 text-foreground/50" />

@@ -56,7 +56,7 @@ export function DoctorSummary({
   };
 
   return (
-    <div className="rounded-lg border border-foreground/10 bg-card overflow-hidden animate-in">
+    <div className="glass rounded-3xl overflow-hidden animate-in">
       <div className="flex items-start gap-3 p-4">
         <Image
           src="/medical-report.png"
@@ -76,7 +76,7 @@ export function DoctorSummary({
       </div>
 
       <div className="px-4 pb-4 space-y-3">
-        <div className="rounded-lg border border-foreground/10 bg-foreground/[0.02] p-3 space-y-1.5">
+        <div className="rounded-2xl border border-foreground/10 bg-white/40 backdrop-blur-md p-3 space-y-1.5">
           {factEntries.length === 0 ? (
             <p className="text-[12px] text-foreground/50 italic">Brak faktów.</p>
           ) : (
@@ -95,7 +95,7 @@ export function DoctorSummary({
           <button
             type="button"
             onClick={onCopy}
-            className="h-9 flex-1 rounded-lg border border-foreground/10 bg-card text-[13px] font-medium text-foreground inline-flex items-center justify-center gap-1.5 transition-colors hover:bg-foreground/5"
+            className="glass h-10 flex-1 rounded-xl text-[13px] font-medium text-foreground inline-flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
             {copied ? (
               <Check className="h-3.5 w-3.5" />
@@ -107,7 +107,7 @@ export function DoctorSummary({
           <button
             type="button"
             onClick={onDownload}
-            className="h-9 flex-1 rounded-lg border border-foreground/10 bg-card text-[13px] font-medium text-foreground inline-flex items-center justify-center gap-1.5 transition-colors hover:bg-foreground/5"
+            className="glass h-10 flex-1 rounded-xl text-[13px] font-medium text-foreground inline-flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
             <Download className="h-3.5 w-3.5" />
             Pobierz .md

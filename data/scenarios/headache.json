@@ -1,0 +1,86 @@
+{
+    "id": "TRIAGE_HEADACHE",
+    "label": "Ból głowy – napięciowy vs czerwone flagi (R51)",
+    "description": "Triaż bólu głowy: pierwotny (TTH) vs czerwone flagi wtórne. Na podstawie research.txt – scenariusz 4 (ICD-10 R51).",
+    "sources": [
+      "Research.txt – Scenariusz 4 (thunderclap, ciśnienie śródczaszkowe, opony)",
+      "ICD-10: R51 – ból głowy"
+    ],
+    "greeting": "Cześć. Jestem ClearStep. Krótki wywiad o bólu głowy – żeby odróżnić typowy, częsty ból napięciowy od sytuacji wymagających pilnej oceny. Opisz w jednym zdaniu, jak boli i od kiedy.",
+    "systemPrompt": "Jesteś asystentem triażu ClearStep. Scenariusz: ból głowy – wykluczanie czerwonych flag (thunderclap, objawy oponowe, ogniskowe neuro, ciężkie wymioty poranne). NIE STAWIASZ DIAGNOZY. Pytaj pojedynczo. Z research: przewlekły ucisk „ciasnej czapki” + napięcie karku + stres vs piorunujący początek w sekundach. Przy czerwonych flagach – escalate EMERGENCY. Nie obiecuj TK/Rezonansu „na życzenie”. JSON ChatTurn, quick replies PL.",
+    "factSchema": [
+      {
+        "key": "onset_speed",
+        "label": "Jak zaczął się ból",
+        "type": "enum",
+        "required": true,
+        "options": ["w sekundach do max. minuty – jak uderzenie pioruna", "narastał godzinami lub dniami", "nie pamiętam / nie wiem"],
+        "hint": "Thunderclap – z research – czerwona flaga."
+      },
+      {
+        "key": "projectile_morning_vomit",
+        "label": "Czy są gwałtowne „chlustające” wymioty zaraz po przebudzeniu bez poprzedzających nudności",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie wiem"],
+        "hint": "Z research – przy podejrzeniu przyczyn ośrodkowych."
+      },
+      {
+        "key": "valsalva_big_worse",
+        "label": "Czy przy mocnym dmuchaniu przez zatkany nos (próba kaszlu/Valsalva) ból głowy dramatycznie eksploduje",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie", "nie testowałem/am"],
+        "hint": "Z research – nasilenie przy próbie ciśnieniowej."
+      },
+      {
+        "key": "fever_stiff_neck_focal_neuro",
+        "label": "Czy jest gorączka z sztywnością karku uniemożliwiającą zbliżenie brody do mostka LUB nagłe zaburzenia neurologiczne (niedowład, asymetria twarzy, silne zaburzenia widzenia)",
+        "type": "enum",
+        "required": true,
+        "options": ["nie", "tak / podejrzewam", "nie wiem"],
+        "hint": "Meningealne/ogniskowe – pilnie."
+      },
+      {
+        "key": "pain_quality_context",
+        "label": "Opis bólu i kontekst",
+        "type": "enum",
+        "required": true,
+        "options": ["obustronny ucisk / „ciasna czapka”, kark, ekran, stres", "jednostronny pulsujący z nudnościami do ciemności", "inny / nie potrafię"],
+        "hint": "TTH vs migrena – uproszczenie; oba zwykle nie-SOR w research dla „czerwonych flag” ujemnych."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "HEADACHE_EMERGENCY",
+        "title": "Czerwone flagi – pilna ocena (SOR / 112)",
+        "urgency": "EMERGENCY",
+        "advice": "Z wywiadu wynikają cechy wymagające pilnej oceny neurologicznej/ratunkowej, nie czatu.",
+        "plan": [
+          "Zadzwoń pod 112 lub jedź na SOR – nie czekaj na samopoczucie.",
+          "Jeśli jesteś sam/a, powiadom kogoś w pobliżu.",
+          "Nie prowadź pojazdu."
+        ],
+        "ctaLabel": "Wezwij pomoc",
+        "specialist": "SOR / neurologia"
+      },
+      {
+        "id": "HEADACHE_TENSION_SELF_CARE",
+        "title": "Bez czerwonych flag – typowy ból pierwotny: samoopieka i ewentualnie POZ",
+        "urgency": "ROUTINE",
+        "advice": "Wywiad nie wskazuje na nagłe zdarzenie naczyniowe ani infekcję opon w tej uproszczonej ocenie. To nadal nie jest diagnoza – jeśli coś się zmieni, wróć do lekarza.",
+        "plan": [
+          "Ogranicz czas przed ekranem, nawodnienie, sen.",
+          "Zimny kompres na kark – krótko, jeśli pomaga.",
+          "NLPZ wg ulotki jeśli nie masz przeciwwskazań.",
+          "Jeśli lęk o zdrowie z przeglądarki dominuje – rozważ pracę z psychoterapeutą CBT (cyberchondria) – z research."
+        ],
+        "ctaLabel": "Zapisz plan",
+        "specialist": "Lekarz POZ (gdy ból się utrzymuje lub nasila)"
+      }
+    ],
+    "rules": [
+      { "when": "onset_speed == 'w sekundach do max. minuty – jak uderzenie pioruna' || projectile_morning_vomit == 'tak' || valsalva_big_worse == 'tak' || fever_stiff_neck_focal_neuro == 'tak / podejrzewam'", "decisionId": "HEADACHE_EMERGENCY" },
+      { "when": "default", "decisionId": "HEADACHE_TENSION_SELF_CARE" }
+    ]
+  }

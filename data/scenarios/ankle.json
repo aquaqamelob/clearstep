@@ -1,0 +1,91 @@
+{
+    "id": "TRIAGE_ANKLE",
+    "label": "Skręcenie stawu skokowego – Ottawa i opieka domowa (S93)",
+    "description": "Triaż urazu skokowego: kryteria Ottawa, obciążenie kończyny, przeciwskazania do RTG w domowej ocenie. Na podstawie research.txt – scenariusz 5 (ICD-10 S93).",
+    "sources": [
+      "Research.txt – Scenariusz 5 (Ottawa Ankle Rules, PRICE)",
+      "ICD-10: S93 – urazy stawu skokowego"
+    ],
+    "greeting": "Cześć. Jestem ClearStep. Krótki wywiad o urazie kostki/stopy – bez RTG przez internet, tylko zebranie faktów wg uproszczonych kryteriów. Opisz w jednym zdaniu, jak doszło do urazu i co teraz odczuwasz.",
+    "systemPrompt": "Jesteś asystentem triażu ClearStep. Scenariusz: skręcenie kostki. NIE STAWIASZ DIAGNOZY RTG. Z research: wyklucz złamanie otwarte, wykręcenie jak w zwichnięciu, brak możliwości obciążenia 4 kroków, bolesność kostnych stref malleoli (uproszczenie). Duży siniak ≠ złamanie. Przy bezpiecznym obrazie – protokół PRICE i POZ planowo. escalate EMERGENCY przy otwartym złamaniu, wyraźnym zniekształceniu, braku tętna. JSON ChatTurn, quick replies PL.",
+    "factSchema": [
+      {
+        "key": "open_wound_or_gross_deformity",
+        "label": "Czy jest rana z widoczną kością albo stopa/kostka wyraźnie „nie na swoim miejscu” względem drugiej strony",
+        "type": "enum",
+        "required": true,
+        "options": ["nie", "tak / podejrzewam", "nie wiem"],
+        "hint": "Z research – otwarte/złożone → ratunek."
+      },
+      {
+        "key": "can_take_four_steps",
+        "label": "Czy zaraz po urazie dało się zrobić choć 4 kroki obciążając stopę (nawet z utykaniem)",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie – nie dało się stanąć", "nie pamiętam / nie próbowałem/am"],
+        "hint": "Element kryteriów Ottawy – z research."
+      },
+      {
+        "key": "malleolar_bone_tenderness",
+        "label": "Czy palpacja samego szczytu kostki strzałkowej bocznej albo krawędzi piszczelowej (w strefie kostki) jest ostra „na kość”, a nie tylko miękki obrzęk obok",
+        "type": "enum",
+        "required": true,
+        "options": ["nie – najbardziej boli miękki obrzęk obok", "tak – bardzo bolesny jest czubek/szczyt kostki", "nie wiem / boję się dotykać"],
+        "hint": "Uproszczenie OAR z research."
+      },
+      {
+        "key": "circulation_ok",
+        "label": "Czy stopa jest ciepła, z normalnym zabarwieniem, nie masz drętwienia obwodowego „jak z klocków”",
+        "type": "enum",
+        "required": true,
+        "options": ["tak", "nie / niepewnie", "nie wiem"],
+        "hint": "Krążenie – jeśli złe, pilna ocena."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "ANKLE_EMERGENCY",
+        "title": "Pilna pomoc – uraz wysokiego ryzyka",
+        "urgency": "EMERGENCY",
+        "advice": "Z wywiadu wynika ryzyko ciężkiego urazu wymagającego nagłej oceny chirurgicznej/ratunkowej.",
+        "plan": [
+          "Zadzwoń pod 112 lub jedź na SOR.",
+          "Nie obciążaj kończyny, unieruchom w miarę możliwości.",
+          "Nie próbuj „wciskać na miejsce” złamania."
+        ],
+        "ctaLabel": "Wezwij pomoc",
+        "specialist": "SOR / ortopedia"
+      },
+      {
+        "id": "ANKLE_IMAGING_POZ",
+        "title": "Wskazana ocena i rozważenie RTG – nie jako nagły „wypad na sygnale”",
+        "urgency": "URGENT",
+        "advice": "W uproszczonej ocenie są elementy zgodne z kryteriami skierowania na dalszą diagnostykę obrazową – to nie musi być karetka, ale jest sens szybkiej ścieżki ambulatoryjnej.",
+        "plan": [
+          "Izba przyjęć / SOR dzienny lub ortopedia w ciągu 24 h (wg dostępności lokalnej).",
+          "Do czasu oceny: odciążenie, lód w ręczniku, lekka kompresja, uniesienie.",
+          "Nie kończ sportem na bolącej kończynie."
+        ],
+        "ctaLabel": "Umów ścieżkę diagnostyczną",
+        "specialist": "POZ → ortopedia / SOR (wg kolejki)"
+      },
+      {
+        "id": "ANKLE_PRICE_HOME",
+        "title": "Skręcenie bez czerwonych flag – PRICE i obserwacja",
+        "urgency": "ROUTINE",
+        "advice": "Wywiad jest spójny z typowym skręceniem bez czerwonych flag z research (ujemne OAR w uproszczeniu): obrzęk i siniak mogą być duże, ale nie oznaczają same z siebie „roztrzaskania”.",
+        "plan": [
+          "Ochrona i odciążenie, lód krótko i przez ręcznik, kompresja elastyczna umiarkowana, uniesienie wyżej niż serce.",
+          "Jeśli po dobie nie poprawia się obciążenie lub pojawiają się czerwone flagi – kontakt z POZ/ortopedą.",
+          "Powrót do aktywności stopniowo po ustąpieniu obrzęku."
+        ],
+        "ctaLabel": "Zapisz protokół PRICE",
+        "specialist": "Lekarz POZ / ortopedia (planowo)"
+      }
+    ],
+    "rules": [
+      { "when": "open_wound_or_gross_deformity == 'tak / podejrzewam' || circulation_ok == 'nie / niepewnie'", "decisionId": "ANKLE_EMERGENCY" },
+      { "when": "can_take_four_steps == 'nie – nie dało się stanąć' || malleolar_bone_tenderness == 'tak – bardzo bolesny jest czubek/szczyt kostki'", "decisionId": "ANKLE_IMAGING_POZ" },
+      { "when": "default", "decisionId": "ANKLE_PRICE_HOME" }
+    ]
+  }

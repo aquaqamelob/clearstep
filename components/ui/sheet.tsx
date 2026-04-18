@@ -122,7 +122,7 @@ export function Sheet({
             transition={{ type: "spring", stiffness: 380, damping: 38 }}
             className={cn(
               "fixed bottom-0 left-0 right-0 z-50 flex flex-col",
-              "max-h-[82vh] rounded-t-[10px] bg-card shadow-xl",
+              "max-h-[82vh] rounded-t-[22px] bg-card shadow-xl",
               "[transition:height_220ms_ease]",
               "touch-none",
               className
@@ -131,7 +131,7 @@ export function Sheet({
           >
             <div
               ref={contentRef}
-              className="max-w-md w-full mx-auto overflow-auto p-4 rounded-t-[10px]"
+              className="max-w-md w-full mx-auto overflow-auto p-4 rounded-t-[22px]"
             >
               {/* Drag handle */}
               <div

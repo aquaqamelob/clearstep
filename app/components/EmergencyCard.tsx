@@ -21,7 +21,7 @@ export function EmergencyCard({ message }: { message: string }) {
         />
       </div>
 
-      <div className="rounded-lg border border-red-200 bg-red-50/60 p-4 mt-4">
+      <div className="rounded-2xl border border-red-200 bg-red-50/70 backdrop-blur-md p-4 mt-4">
         <h3 className="font-medium text-red-700 text-[14px] leading-tight">
           Potrzebujesz teraz innego rodzaju pomocy
         </h3>
@@ -37,8 +37,8 @@ export function EmergencyCard({ message }: { message: string }) {
             href={`tel:${h.number.replace(/\s/g, "")}`}
             className={
               h.primary
-                ? "h-[52px] rounded-lg bg-red-600 text-white inline-flex items-center justify-between px-4 font-medium transition-opacity hover:opacity-95 active:opacity-90"
-                : "h-[44px] rounded-lg border border-foreground/10 bg-card text-foreground inline-flex items-center justify-between px-3.5 transition-colors hover:bg-foreground/5"
+                ? "h-[56px] rounded-2xl bg-red-600 text-white inline-flex items-center justify-between px-4 font-medium transition-all hover:scale-[1.01] active:scale-[0.99]"
+                : "glass h-[48px] rounded-2xl text-foreground inline-flex items-center justify-between px-3.5 transition-all hover:scale-[1.005]"
             }
           >
             <span className="flex items-center gap-2 text-[14px]">

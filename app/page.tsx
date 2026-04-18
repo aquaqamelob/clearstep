@@ -196,6 +196,9 @@ export default function Home() {
   // the user is, the warmer/happier the gradient feels — until the decision
   // is shown (full sun). Emergencies stay calm/cool on purpose.
   const userTurns = messages.filter((m) => m.role === "user").length;
+  // Larger initial step (0.34 instead of 0.18) so the FIRST user message
+  // already pushes us to palette 1 — otherwise the change between idx 0
+  // and idx 1 was triggering only after 1-2 turns and felt invisible.
   const mood =
     terminal?.kind === "emergency"
       ? 0
@@ -203,7 +206,7 @@ export default function Home() {
         ? 1
         : terminal?.kind === "coming_soon"
           ? 0.7
-          : Math.min(0.85, userTurns * 0.18);
+          : Math.min(1, userTurns * 0.34);
 
   return (
     <div className="relative flex min-h-dvh flex-col">
@@ -212,10 +215,10 @@ export default function Home() {
       <Onboarding />
       <AboutSheet open={aboutOpen} onOpenChange={setAboutOpen} />
 
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-2.5 backdrop-blur-md bg-card/75 border-b border-foreground/10">
+      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col">
+        <header className="glass-strong sticky top-0 z-30 flex items-center justify-between gap-2 px-4 py-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
               <Stethoscope className="h-4 w-4" />
             </div>
             <div className="flex flex-col leading-tight">
@@ -231,7 +234,7 @@ export default function Home() {
                 type="button"
                 onClick={reset}
                 aria-label="Zacznij od nowa"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
@@ -240,7 +243,7 @@ export default function Home() {
               type="button"
               onClick={() => setAboutOpen(true)}
               aria-label="O aplikacji"
-              className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
             >
               <Info className="h-4 w-4" />
             </button>
@@ -248,7 +251,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-5 space-y-3">
+        <div ref={scrollerRef} className="relative z-20 flex-1 overflow-y-auto px-4 py-5 space-y-3">
           {isFresh ? (
             <HeroStarter disabled={loading} onPick={send} />
           ) : null}
@@ -307,7 +310,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-foreground/60 hover:text-foreground hover:bg-foreground/5 rounded-md transition-colors"
+                className="glass inline-flex items-center gap-1.5 px-3.5 py-2 text-xs text-foreground/70 hover:text-foreground rounded-full transition-all hover:scale-[1.02]"
               >
                 <RefreshCw className="h-3.5 w-3.5" /> Zacznij od nowa
               </button>
@@ -316,7 +319,7 @@ export default function Home() {
         </div>
 
         {!terminal && (
-          <div className="sticky bottom-0 backdrop-blur-md bg-card/85 border-t border-foreground/10">
+          <div className="glass-strong sticky bottom-0 z-30">
             {!isFresh && quickReplies.length > 0 && (
               <div className="flex flex-wrap gap-1.5 px-4 pt-3">
                 {quickReplies.map((q, i) => (
@@ -329,7 +332,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04, duration: 0.22 }}
                     whileTap={{ scale: 0.97 }}
-                    className="rounded-md border border-foreground/10 bg-card px-3 h-8 text-[13px] font-medium text-foreground transition-colors hover:bg-foreground/5 disabled:pointer-events-none disabled:opacity-50"
+                    className="glass rounded-full px-3.5 h-9 text-[13px] font-medium text-foreground transition-all hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
                   >
                     {q}
                   </motion.button>
@@ -356,7 +359,7 @@ export default function Home() {
                 }
                 disabled={inputDisabled}
                 autoFocus
-                className="relative h-10 grow rounded-lg border border-foreground/10 bg-card px-3 text-[15px] text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-foreground/5 disabled:opacity-50"
+                className="glass relative h-11 grow rounded-2xl px-4 text-[15px] text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-foreground/10 disabled:opacity-50"
               />
 
               {/* Morph ghost — rounded-lg to match the input + chat bubble.
@@ -370,8 +373,8 @@ export default function Home() {
                 initial={{ opacity: 0.6, zIndex: -1 }}
                 animate={{ opacity: 0.6, zIndex: -1 }}
                 exit={{ opacity: 1, zIndex: 1 }}
-                className="pointer-events-none absolute top-3 bottom-3 left-3 right-15 flex items-center overflow-hidden rounded-lg bg-foreground px-3 text-[15px] text-background"
-                style={{ right: "calc(2.5rem + 0.5rem + 0.75rem)" }}
+                className="pointer-events-none absolute top-3 bottom-3 left-3 right-15 flex items-center overflow-hidden rounded-2xl bg-foreground px-4 text-[15px] text-background"
+                style={{ right: "calc(2.75rem + 0.5rem + 0.75rem)" }}
               >
                 <span className="truncate">{input}</span>
               </motion.div>
@@ -380,7 +383,7 @@ export default function Home() {
                 type="submit"
                 disabled={inputDisabled || !input.trim()}
                 aria-label="Wyślij"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-foreground text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background transition-all hover:scale-[1.04] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               >
                 <Send className="h-4 w-4" />
               </button>

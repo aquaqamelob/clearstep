@@ -58,8 +58,8 @@ export function HeroStarter({
       <motion.div
         initial={{ scale: 0.7, rotate: -10, y: 8 }}
         animate={{ scale: 1, rotate: 0, y: 0 }}
-        transition={{ type: "spring", stiffness: 280, damping: 16 }}
-        className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card border border-foreground/10"
+        transition={{ type: "spring", stiffness: 160, damping: 18 }}
+        className="glass flex h-28 w-28 items-center justify-center rounded-3xl"
       >
         <Image
           src="/medical-kit.png"
@@ -74,7 +74,7 @@ export function HeroStarter({
       <motion.h1
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05, duration: 0.3, ease: "easeOut" }}
+        transition={{ delay: 0.15, duration: 0.6, ease: "easeOut" }}
         className="font-medium text-xl text-foreground text-balance text-center mt-6"
       >
         Co się dzieje?
@@ -82,7 +82,7 @@ export function HeroStarter({
       <motion.p
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+        transition={{ delay: 0.25, duration: 0.6, ease: "easeOut" }}
         className="leading-6 mt-2 text-foreground/60 text-balance text-center text-[15px] max-w-xs"
       >
         Wybierz coś bliskiego albo napisz po swojemu.
@@ -98,19 +98,18 @@ export function HeroStarter({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
-              delay: 0.15 + i * 0.06,
-              duration: 0.32,
+              delay: 0.4 + i * 0.12,
+              duration: 0.6,
               ease: [0.22, 1, 0.36, 1],
             }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-              "group flex w-full items-center gap-3 rounded-lg border border-foreground/10",
-              "bg-card p-2.5 text-left",
-              "transition-colors hover:bg-foreground/[0.03]",
+              "glass group flex w-full items-center gap-3 rounded-2xl p-3 text-left",
+              "transition-all hover:scale-[1.01] active:scale-[0.99]",
               "disabled:pointer-events-none disabled:opacity-50"
             )}
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-foreground/[0.03]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/40">
               <Image
                 src={c.image}
                 alt={c.alt}

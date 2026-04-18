@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
-export const bubbleTransition = { ease: "easeOut" as const, duration: 0.22 };
+export const bubbleTransition = { ease: "easeOut" as const, duration: 0.45 };
 
 export function ChatBubble({
   role,
@@ -30,7 +30,7 @@ export function ChatBubble({
       )}
     >
       {isAssistant && (
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+        <div className="glass flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl text-foreground/70">
           <Stethoscope className="h-3.5 w-3.5" />
         </div>
       )}
@@ -38,16 +38,14 @@ export function ChatBubble({
         layoutId={layoutId}
         transition={bubbleTransition}
         className={cn(
-          "max-w-[85%] rounded-lg px-3.5 py-2 text-[15px] leading-snug",
-          isAssistant
-            ? "bg-card text-foreground border border-foreground/10"
-            : "bg-foreground text-background"
+          "max-w-[85%] rounded-2xl px-3.5 py-2 text-[15px] leading-snug",
+          isAssistant ? "glass text-foreground" : "glass-dark text-background"
         )}
       >
         {children}
       </motion.div>
       {!isAssistant && (
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+        <div className="glass flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl text-foreground/70">
           <User className="h-3.5 w-3.5" />
         </div>
       )}
@@ -65,10 +63,10 @@ export function TypingBubble() {
         transition={bubbleTransition}
         className="flex gap-2"
       >
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+        <div className="glass flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl text-foreground/70">
           <Stethoscope className="h-3.5 w-3.5" />
         </div>
-        <div className="rounded-lg border border-foreground/10 bg-card px-3.5 py-2.5">
+        <div className="glass rounded-2xl px-3.5 py-2.5">
           <div className="flex gap-1">
             <span className="typing-dot inline-block h-1.5 w-1.5 rounded-full bg-foreground/40" />
             <span

@@ -64,7 +64,7 @@ export function AboutSheet({
           // Wait for sheet exit animation, then re-open onboarding.
           setTimeout(() => reopenOnboarding(), 320);
         }}
-        className="h-[44px] mt-6 w-full rounded-lg border border-foreground/10 bg-background text-foreground text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors hover:bg-foreground/5"
+        className="h-[48px] mt-6 w-full rounded-2xl border border-foreground/10 bg-background text-foreground text-sm font-medium inline-flex items-center justify-center gap-2 transition-all hover:bg-foreground/5 active:scale-[0.99]"
       >
         <PlayCircle className="h-4 w-4" /> Pokaż intro jeszcze raz
       </button>
@@ -84,7 +84,7 @@ function Row({
   body: string;
 }) {
   return (
-    <li className="flex gap-3 rounded-lg border border-foreground/10 bg-background/50 p-3">
+    <li className="flex gap-3 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-3">
       {image ? (
         <Image
           src={image}
@@ -94,7 +94,7 @@ function Row({
           className="h-9 w-9 shrink-0 select-none"
         />
       ) : (
-        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground/5 text-foreground/70">
           {icon}
         </div>
       )}
