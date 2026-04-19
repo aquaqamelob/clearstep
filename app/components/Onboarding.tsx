@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/ui/bottom-sheet";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "cs:onboarded";

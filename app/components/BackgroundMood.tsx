@@ -32,10 +32,10 @@ import { useMemo } from "react";
  * wallpaper saturation under a translucent sheet.
  */
 const PALETTES: Array<[string, string, string]> = [
-  ["#dbeafe", "#e0e7ff", "#dcfce7"],
-  ["#bae6fd", "#fef3c7", "#ffe4e6"],
-  ["#fef3c7", "#fed7aa", "#ecfccb"],
-  ["#fef9c3", "#fed7aa", "#d1fae5"],
+  ["#93c5fd", "#a5b4fc", "#6ee7b7"],
+  ["#38bdf8", "#fde047", "#fb7185"],
+  ["#fbbf24", "#fb923c", "#84cc16"],
+  ["#fde047", "#f97316", "#34d399"],
 ];
 
 function gradient(p: readonly [string, string, string]): string {

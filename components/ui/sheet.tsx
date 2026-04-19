@@ -1,148 +1,140 @@
-"use client";
+"use client"
 
-import { AnimatePresence, motion, type PanInfo } from "motion/react";
-import { useEffect, useRef } from "react";
+import * as React from "react"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
+import { cva, type VariantProps } from "class-variance-authority"
+import { X } from "lucide-react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-/**
- * Bottom-sheet primitive — visual styling lifted from vaul (clean utility look:
- * small 10px corner, edge-to-edge bg, max-w-md centered scroll container,
- * unobtrusive handle). Motion is still our own (motion/react drag + spring),
- * because we want one animation engine across the app and we re-use the same
- * sheet for multi-view onboarding.
- *
- * Layout:
- *   wrapper (fixed bottom, edge-to-edge, max-h-[82vh], rounded-t-[10px])
- *     └─ scroll container (max-w-md w-full mx-auto overflow-auto p-4)
- *          └─ handle bar
- *          └─ children
- *
- * Children should NOT add their own outer padding — Sheet handles it.
- */
+const Sheet = SheetPrimitive.Root
 
-const backdropVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-};
+const SheetTrigger = SheetPrimitive.Trigger
 
-const containerVariants = {
-  initial: { y: "calc(100% + 4rem)" },
-  animate: { y: 0 },
-  exit: { y: "calc(100% + 4rem)" },
-};
+const SheetClose = SheetPrimitive.Close
 
-export function Sheet({
-  open,
-  onOpenChange,
-  dismissible = true,
-  children,
-  className,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** When false: no backdrop click, no swipe, no ESC — only the consumer can close it. */
-  dismissible?: boolean;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+const SheetPortal = SheetPrimitive.Portal
 
-  // Auto-resize: when inner content height changes (e.g. switching onboarding
-  // step), animate the wrapper height. CSS transition handles interpolation;
-  // first measure snaps because `auto` → `Xpx` is not transitionable.
-  // max-h-[82vh] caps it; if content exceeds that, inner div scrolls.
-  useEffect(() => {
-    if (!open) return;
-    const inner = contentRef.current;
-    const wrapper = wrapperRef.current;
-    if (!inner || !wrapper) return;
-    const sync = () => {
-      wrapper.style.height = `${inner.offsetHeight}px`;
-    };
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, [open]);
+const SheetOverlay = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Overlay
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    )}
+    {...props}
+    ref={ref}
+  />
+))
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
-  // Lock body scroll while the sheet is open.
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  // ESC closes (when dismissible).
-  useEffect(() => {
-    if (!open || !dismissible) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onOpenChange(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, dismissible, onOpenChange]);
-
-  function handleDragEnd(_: unknown, info: PanInfo) {
-    if (!dismissible) return;
-    if (info.offset.y > 100 || info.velocity.y > 500) {
-      onOpenChange(false);
-    }
+const sheetVariants = cva(
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  {
+    variants: {
+      side: {
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        bottom:
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+        right:
+          "inset-y-0 right-0 h-full w-3/4  border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+      },
+    },
+    defaultVariants: {
+      side: "right",
+    },
   }
+)
 
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            variants={backdropVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm"
-            onClick={() => dismissible && onOpenChange(false)}
-          />
-          <motion.div
-            ref={wrapperRef}
-            drag={dismissible ? "y" : false}
-            dragConstraints={{ top: 0, bottom: 100 }}
-            dragSnapToOrigin
-            dragElastic={0.1}
-            onDragEnd={handleDragEnd}
-            variants={containerVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ type: "spring", stiffness: 380, damping: 38 }}
-            className={cn(
-              "fixed bottom-0 left-0 right-0 z-50 flex flex-col",
-              "max-h-[82vh] rounded-t-[22px] bg-card shadow-xl",
-              "[transition:height_220ms_ease]",
-              "touch-none",
-              className
-            )}
-            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-          >
-            <div
-              ref={contentRef}
-              className="max-w-md w-full mx-auto overflow-auto p-4 rounded-t-[22px]"
-            >
-              {/* Drag handle */}
-              <div
-                aria-hidden="true"
-                className="mx-auto mb-2 h-1 w-10 rounded-full bg-foreground/15"
-              />
-              {children}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
+interface SheetContentProps
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+    VariantProps<typeof sheetVariants> {}
+
+const SheetContent = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Content>,
+  SheetContentProps
+>(({ side = "right", className, children, ...props }, ref) => (
+  <SheetPortal>
+    <SheetOverlay />
+    <SheetPrimitive.Content
+      ref={ref}
+      className={cn(sheetVariants({ side }), className)}
+      {...props}
+    >
+      {children}
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </SheetPrimitive.Close>
+    </SheetPrimitive.Content>
+  </SheetPortal>
+))
+SheetContent.displayName = SheetPrimitive.Content.displayName
+
+const SheetHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className
+    )}
+    {...props}
+  />
+)
+SheetHeader.displayName = "SheetHeader"
+
+const SheetFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    )}
+    {...props}
+  />
+)
+SheetFooter.displayName = "SheetFooter"
+
+const SheetTitle = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Title
+    ref={ref}
+    className={cn("text-lg font-semibold text-foreground", className)}
+    {...props}
+  />
+))
+SheetTitle.displayName = SheetPrimitive.Title.displayName
+
+const SheetDescription = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+SheetDescription.displayName = SheetPrimitive.Description.displayName
+
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
 }

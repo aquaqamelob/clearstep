@@ -28,8 +28,13 @@ const INTENT_SYSTEM_PROMPT = `Jesteś klasyfikatorem intencji ClearStep. Otrzymu
 - PREGNANCY_SCARE — ryzyko nieplanowanej ciąży: pęknięta/zsunięta prezerwatywa ("pękła guma/gumka"), seks bez zabezpieczenia, "skończył w środku", zapomniana tabletka antykoncepcyjna, opóźniony okres, prośba o tabletkę "po"/EllaOne/Escapelle, obawa o ciążę.
 - MENTAL_HEALTH — psychika: bezsenność, smutek, brak motywacji, lęk, panika, anhedonia, wypalenie, przewlekły stres, płaczliwość.
 - STD_PANIC — obawa o chorobę weneryczną BEZ wątku ciąży: ryzykowny seks z osobą o nieznanym statusie zdrowotnym, podejrzane wydzieliny/wysypki/pieczenie, prośba o test na HIV/chlamydię/kiłę.
-- GENERAL_SICK — inne fizyczne (gorączka, ból gardła, kaszel, ból brzucha, wysypka bez kontekstu seksualnego).
-- EMERGENCY — zagrożenie życia: krwotok, samobójstwo, ból w klatce, omdlenie.
+- TRIAGE_URTI — przeziębienie / infekcja górnych dróg oddechowych: katar, ból gardła, kaszel, chrypka, zatkany nos, "duszność" przy zatkanym nosie.
+- TRIAGE_GASTRO — żołądek/jelita: ból brzucha, biegunka, wymioty, zatrucie pokarmowe, niestrawność, nudności po jedzeniu.
+- TRIAGE_CHEST — niepokój o klatkę piersiową BEZ jednoznacznych cech zawału (bo te → EMERGENCY): kłucie/ucisk w klatce przy stresie, hiperwentylacja, "boję się że to serce".
+- TRIAGE_HEADACHE — ból głowy: napięciowy, migrenowy, nawracający, "rozsadza mi głowę". Czerwone flagi (piorunujący, sztywność karku) dalej idą tu — scenariusz sam je odsiewa do EMERGENCY.
+- TRIAGE_ANKLE — uraz kostki/stopy: skręcenie, podwinięcie, opuchlizna po upadku/sporcie.
+- GENERAL_SICK — inne fizyczne nie pasujące do żadnego TRIAGE_* powyżej (np. wysypka bez kontekstu, ogólne osłabienie).
+- EMERGENCY — zagrożenie życia: krwotok, samobójstwo, miażdżący ból w klatce z promieniowaniem, omdlenie, udar.
 
 REGUŁY ROZSTRZYGNIĘĆ (bardzo ważne):
 
@@ -37,6 +42,8 @@ REGUŁY ROZSTRZYGNIĘĆ (bardzo ważne):
 2. Polski slang i literówki: "guma" / "gumka" = prezerwatywa. "pekla" / "pękła" / "zerwała" / "zsunęła" — wszystkie znaczą uszkodzenie. "Wpadka" = niezabezpieczony seks z ryzykiem ciąży.
 3. Jeśli wiadomość jest jednym fragmentem typu "pekla guma", "wpadka wczoraj", "spóźnia mi się okres" — to PREGNANCY_SCARE, nie GENERAL_SICK.
 4. STD_PANIC tylko gdy NIE MA wątku ciąży (np. mężczyzna piszący o pieczeniu po seksie z mężczyzną, podejrzane wydzieliny bez kontekstu cyklu).
+5. Dla objawów fizycznych zawsze próbuj dopasować KONKRETNY scenariusz TRIAGE_* zanim sięgniesz po GENERAL_SICK. GENERAL_SICK to ostatnia deska ratunku.
+6. Czerwone flagi sercowe (miażdżący ucisk z promieniowaniem do żuchwy/ramienia, ból w klatce + duszność spoczynkowa) → EMERGENCY, nie TRIAGE_CHEST. TRIAGE_CHEST to kłucie/ucisk przy stresie, podejrzenie hiperwentylacji.
 
 PRZYKŁADY:
 - "pekla guma" → PREGNANCY_SCARE
@@ -48,7 +55,16 @@ PRZYKŁADY:
 - "ciągle płaczę i nic mi się nie chce" → MENTAL_HEALTH
 - "boję się że mam HIV po seksie z nieznajomym" → STD_PANIC
 - "dziwna wydzielina z penisa" → STD_PANIC
-- "boli mnie gardło i mam gorączkę" → GENERAL_SICK
+- "boli mnie gardło i mam gorączkę" → TRIAGE_URTI
+- "katar i kaszel od 3 dni" → TRIAGE_URTI
+- "biegunka i wymioty od wczoraj wieczorem" → TRIAGE_GASTRO
+- "boli mnie brzuch po obiedzie" → TRIAGE_GASTRO
+- "kłuje mnie w klatce jak się stresuję" → TRIAGE_CHEST
+- "ucisk pod mostkiem promieniujący do żuchwy" → EMERGENCY
+- "rozsadza mi głowę od rana" → TRIAGE_HEADACHE
+- "ból głowy jak uderzenie pioruna w kilka sekund" → EMERGENCY
+- "skręciłam kostkę grając w piłkę" → TRIAGE_ANKLE
+- "podwinąłem stopę i jest spuchnięta" → TRIAGE_ANKLE
 - "krew leci mi z nosa od 30 minut" → EMERGENCY
 
 Zwróć WYŁĄCZNIE JSON: { "intent": "<KATEGORIA>" }. Bez komentarza, bez markdown.`;
@@ -101,7 +117,9 @@ export async function POST(req: Request) {
             "Ten scenariusz nie jest jeszcze pełni obsługiwany. Polecamy konsultację z lekarzem POZ – wizyta NFZ tego samego dnia lub prywatna telekonsultacja w 30 min.",
         });
       }
-      scenarioId = intent; // PREGNANCY_SCARE or MENTAL_HEALTH
+      // PREGNANCY_SCARE, MENTAL_HEALTH, TRIAGE_* — all map directly to a
+      // loaded scenario id of the same name.
+      scenarioId = intent;
     } catch (err) {
       console.error("intent classification failed", err);
       return NextResponse.json(
@@ -227,6 +245,11 @@ async function classifyIntent(text: string): Promise<string> {
         "MENTAL_HEALTH",
         "STD_PANIC",
         "GENERAL_SICK",
+        "TRIAGE_URTI",
+        "TRIAGE_GASTRO",
+        "TRIAGE_CHEST",
+        "TRIAGE_HEADACHE",
+        "TRIAGE_ANKLE",
         "EMERGENCY",
       ]),
     })

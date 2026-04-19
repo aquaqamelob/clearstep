@@ -88,24 +88,41 @@ export function HeroStarter({
         Wybierz coś bliskiego albo napisz po swojemu.
       </motion.p>
 
-      <div className="w-full space-y-2 mt-8">
-        {CHOICES.map((c, i) => (
+      <motion.div
+        className="w-full space-y-2 mt-8"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          // Parent has no visual change of its own — it just orchestrates
+          // the staggered entrance of children via variants. Variants are
+          // applied synchronously through the React tree on first commit,
+          // which prevents the "flash of final state" you'd get with
+          // per-child `initial`/`animate` + delay (children would paint
+          // once with `animate` styles before motion's effect ran on a
+          // warm remount, e.g. after Reset).
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.12, delayChildren: 0.4 } },
+        }}
+      >
+        {CHOICES.map((c) => (
           <motion.button
             key={c.prompt}
             type="button"
             disabled={disabled}
             onClick={() => onPick(c.prompt)}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.4 + i * 0.12,
-              duration: 0.6,
-              ease: [0.22, 1, 0.36, 1],
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+              },
             }}
+            whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
+            style={{ willChange: "transform, opacity" }}
             className={cn(
               "glass group flex w-full items-center gap-3 rounded-2xl p-3 text-left",
-              "transition-all hover:scale-[1.01] active:scale-[0.99]",
               "disabled:pointer-events-none disabled:opacity-50"
             )}
           >
@@ -115,6 +132,7 @@ export function HeroStarter({
                 alt={c.alt}
                 width={40}
                 height={40}
+                priority
                 className="h-10 w-10 select-none"
               />
             </div>
@@ -131,7 +149,7 @@ export function HeroStarter({
             </div>
           </motion.button>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

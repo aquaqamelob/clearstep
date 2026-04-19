@@ -14,6 +14,11 @@ export type IntentLabel =
   | "MENTAL_HEALTH"
   | "STD_PANIC"
   | "GENERAL_SICK"
+  | "TRIAGE_URTI"
+  | "TRIAGE_GASTRO"
+  | "TRIAGE_CHEST"
+  | "TRIAGE_HEADACHE"
+  | "TRIAGE_ANKLE"
   | "EMERGENCY";
 
 type Rule = {
@@ -93,6 +98,64 @@ const RULES: Rule[] = [
       /(dziwn|nietypow|niepokoj)\w*\s*(wydzielin|upław|zapach|świąd)/i,
       /(podejrzew|boj[eę])\s*si[eę]\s*(STD|STI|HIV|chlamydi|kił|wenery)/i,
       /(test|badanie)\s*(na|w\s*kierunku)\s*(STD|STI|HIV|wenery|chlamydi)/i,
+    ],
+  },
+
+  // Physical-symptom triage scenarios. Lower priority than the time-sensitive
+  // sexual-health intents so that a message mentioning both ("pekła guma i
+  // boli mnie głowa ze stresu") still routes to PREGNANCY_SCARE. Within the
+  // physical group, all peers are tied — first regex hit wins via filter order.
+  {
+    intent: "TRIAGE_ANKLE",
+    priority: 50,
+    patterns: [
+      /\b(kostk|skok|stopa|stop[eę])\w*\s*(skr[eę]c|zwich|opuchl|spuchl|boli|skr[eę]t)/i,
+      /\b(skr[eę]c|zwich)\w*\s*(kostk|stop|nog)/i,
+      /\b(podwin[eę]ł|wykr[eę]c)\w*\s*(kostk|stop|nog)/i,
+    ],
+  },
+  {
+    intent: "TRIAGE_CHEST",
+    priority: 50,
+    patterns: [
+      /\b(klatk\w*\s*piersiow|w\s*klatce|pod\s*mostkiem|za\s*mostkiem)/i,
+      /\b(k[lł]uje|gniecie|ucisk|pali)\w*\s*w\s*(klatce|piersiach|sercu)/i,
+      /\bserce\s*(boli|k[lł]uje|wali|przyspiesz)/i,
+      /\bzawal|zawał/i,
+    ],
+  },
+  {
+    intent: "TRIAGE_HEADACHE",
+    priority: 45,
+    patterns: [
+      /\b(g[lł]ow[ay])\b[^.!?\n]{0,20}?\b(boli|bola|pulsuj|rozsadz|p[eę]ka)/i,
+      /\b(bol|boli|pulsuj|rozsadz)\w*\s*(g[lł]ow|skronie|czo[lł])/i,
+      /\bmigren\w*/i,
+      /\bb[oó]l\s*g[lł]owy/i,
+    ],
+  },
+  {
+    intent: "TRIAGE_URTI",
+    priority: 45,
+    patterns: [
+      /\b(katar|smarkam|zatkany\s*nos|zatkane\s*zatoki)/i,
+      /\b(boli\s*mnie\s*gard[lł]o|gard[lł]o\s*mnie\s*boli|bol[iaą]\s*gard[lł]o)/i,
+      /\b(kaszel|kaszl[eę]|kaszl[aą])\w*/i,
+      /\bprzezi[eę]bi\w*/i,
+      /\b(infekcj|grypa|grypk)\w*\s*(g[oó]rnych|nosa|gard[lł]a)?/i,
+      /\b(zapaleni|chrypka|chrypk[aą])\s*(gard[lł]a|krtani|nosa)/i,
+    ],
+  },
+  {
+    intent: "TRIAGE_GASTRO",
+    priority: 45,
+    patterns: [
+      /\b(brzuch|brzuszek|brzucha)\b[^.!?\n]{0,20}?\b(boli|bola|skr[eę]c|kr[eę]c)/i,
+      /\b(bol|boli|skr[eę]c)\w*\s*(brzuch|brzucha|w\s*brzuch)/i,
+      /\bbiegunk\w*|\brozwoln/i,
+      /\b(wymiotuj|wymioty|womituj|rzyga|rzygam)/i,
+      /\b(zatru|zatruci|niestrawno|zgaga)\w*/i,
+      /\bnudno[sś]ci/i,
     ],
   },
 ];

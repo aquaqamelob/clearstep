@@ -216,40 +216,45 @@ export default function Home() {
       <AboutSheet open={aboutOpen} onOpenChange={setAboutOpen} />
 
       <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col">
-        <header className="glass-strong sticky top-0 z-30 flex items-center justify-between gap-2 px-4 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
-              <Stethoscope className="h-4 w-4" />
+        <div
+          className="sticky top-0 z-30 px-3"
+          style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+        >
+          <header className="glass-light flex items-center justify-between gap-2 rounded-full p-1.5 pl-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                <Stethoscope className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="font-medium text-sm text-foreground truncate">ClearStep</span>
+                <span className="text-[10px] text-foreground/55 flex items-center gap-1 truncate">
+                  <Shield className="h-2.5 w-2.5 shrink-0" /> Anonimowo · bez logowania
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-medium text-sm text-foreground">ClearStep</span>
-              <span className="text-[10px] text-foreground/50 flex items-center gap-1">
-                <Shield className="h-2.5 w-2.5" /> Anonimowo · bez logowania
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center -mr-1">
-            {!isFresh && (
+            <div className="flex items-center gap-0.5 shrink-0">
+              {!isFresh && (
+                <button
+                  type="button"
+                  onClick={reset}
+                  aria-label="Zacznij od nowa"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-all hover:scale-[1.05] active:scale-95"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={reset}
-                aria-label="Zacznij od nowa"
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
+                onClick={() => setAboutOpen(true)}
+                aria-label="O aplikacji"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-all hover:scale-[1.05] active:scale-95"
               >
-                <RefreshCw className="h-4 w-4" />
+                <Info className="h-4 w-4" />
               </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setAboutOpen(true)}
-              aria-label="O aplikacji"
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
-            >
-              <Info className="h-4 w-4" />
-            </button>
-            <InstallHint />
-          </div>
-        </header>
+              <InstallHint />
+            </div>
+          </header>
+        </div>
 
         <div ref={scrollerRef} className="relative z-20 flex-1 overflow-y-auto px-4 py-5 space-y-3">
           {isFresh ? (
@@ -319,9 +324,12 @@ export default function Home() {
         </div>
 
         {!terminal && (
-          <div className="glass-strong sticky bottom-0 z-30">
+          <div
+            className="sticky bottom-0 z-30 px-3 pt-2"
+            style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+          >
             {!isFresh && quickReplies.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 px-4 pt-3">
+              <div className="flex flex-wrap justify-center gap-1.5 pb-2">
                 {quickReplies.map((q, i) => (
                   <motion.button
                     key={`${q}-${i}`}
@@ -332,7 +340,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04, duration: 0.22 }}
                     whileTap={{ scale: 0.97 }}
-                    className="glass rounded-full px-3.5 h-9 text-[13px] font-medium text-foreground transition-all hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+                    className="glass-light rounded-full px-3.5 h-9 text-[13px] font-medium text-foreground transition-all hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
                   >
                     {q}
                   </motion.button>
@@ -341,7 +349,7 @@ export default function Home() {
             )}
 
             <form
-              className="relative flex items-center gap-2 p-3"
+              className="glass-light relative flex items-center gap-2 rounded-full p-1.5"
               onSubmit={(e) => {
                 e.preventDefault();
                 send(input);
@@ -359,10 +367,10 @@ export default function Home() {
                 }
                 disabled={inputDisabled}
                 autoFocus
-                className="glass relative h-11 grow rounded-2xl px-4 text-[15px] text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-foreground/10 disabled:opacity-50"
+                className="relative h-10 grow rounded-full bg-transparent pl-4 pr-2 text-[15px] text-foreground placeholder:text-foreground/55 outline-none disabled:opacity-50"
               />
 
-              {/* Morph ghost — rounded-lg to match the input + chat bubble.
+              {/* Morph ghost — rounded-full to match the new pill input.
                * Positioned absolute over the input. On submit, motion morphs
                * the ghost's layoutId into the new user bubble in the list. */}
               <motion.div
@@ -373,8 +381,8 @@ export default function Home() {
                 initial={{ opacity: 0.6, zIndex: -1 }}
                 animate={{ opacity: 0.6, zIndex: -1 }}
                 exit={{ opacity: 1, zIndex: 1 }}
-                className="pointer-events-none absolute top-3 bottom-3 left-3 right-15 flex items-center overflow-hidden rounded-2xl bg-foreground px-4 text-[15px] text-background"
-                style={{ right: "calc(2.75rem + 0.5rem + 0.75rem)" }}
+                className="pointer-events-none absolute top-1.5 bottom-1.5 left-1.5 flex items-center overflow-hidden rounded-full bg-white/50 pl-4 pr-3 text-[15px] text-background"
+                style={{ right: "calc(2.5rem + 0.375rem)" }}
               >
                 <span className="truncate">{input}</span>
               </motion.div>
@@ -383,13 +391,13 @@ export default function Home() {
                 type="submit"
                 disabled={inputDisabled || !input.trim()}
                 aria-label="Wyślij"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background transition-all hover:scale-[1.04] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-all hover:scale-[1.05] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               >
                 <Send className="h-4 w-4" />
               </button>
             </form>
 
-            <p className="px-4 pb-3 text-[10px] text-foreground/40 leading-tight">
+            <p className="mt-1.5 text-center text-[10px] text-foreground/50 leading-tight">
               Decyzje medyczne podejmuje deterministyczny silnik, nie AI.
             </p>
           </div>

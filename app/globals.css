@@ -35,6 +35,24 @@
   --grad-1: oklch(0.97 0.04 220);
   --grad-2: oklch(0.95 0.05 280);
   --grad-3: oklch(0.97 0.04 160);
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Chart palette — used by recharts wrapper in components/ui/chart.tsx
+   * via `--color-<key>`. Light teal/violet/amber gradient that matches
+   * the rest of the medflow brand (sky-cyan primary, soft pastels).
+   */
+  --chart-1: oklch(0.62 0.14 220);
+  --chart-2: oklch(0.7 0.16 280);
+  --chart-3: oklch(0.78 0.14 70);
+  --chart-4: oklch(0.68 0.14 155);
+  --chart-5: oklch(0.65 0.18 25);
 }
 
 .dark {
@@ -64,6 +82,20 @@
   --grad-1: oklch(0.22 0.04 220);
   --grad-2: oklch(0.22 0.04 280);
   --grad-3: oklch(0.22 0.04 160);
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  --chart-1: oklch(0.72 0.14 220);
+  --chart-2: oklch(0.78 0.16 280);
+  --chart-3: oklch(0.82 0.14 70);
+  --chart-4: oklch(0.74 0.14 155);
+  --chart-5: oklch(0.7 0.18 25);
 }
 
 @theme inline {
@@ -100,6 +132,19 @@
     sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 }
 
 * {
@@ -157,6 +202,22 @@ body {
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.05);
+}
+
+/* Lighter glass — for input pill, quick replies. The mood-bg is now strong
+ * 300/400-level Tailwind colors, and combined with saturate(180%) on .glass
+ * the input area was reading too "tinted" and made the placeholder hard to
+ * see. .glass-light keeps the frosted feel but bumps fill toward solid white
+ * and dials saturate down to keep input affordances neutral & legible. */
+.glass-light {
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 6px 18px -6px rgba(15, 23, 42, 0.08);
 }
 
 /* Inverted glass — for the user's chat bubble. Same recipe but dark fill

@@ -3,7 +3,7 @@
 import { HelpCircle, PlayCircle } from "lucide-react";
 import Image from "next/image";
 
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet } from "@/components/ui/bottom-sheet";
 
 import { reopenOnboarding } from "./Onboarding";
 

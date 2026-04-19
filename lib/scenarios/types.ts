@@ -29,7 +29,17 @@ export const RuleSchema = z.object({
 export type Rule = z.infer<typeof RuleSchema>;
 
 export const ScenarioMetaSchema = z.object({
-  id: z.enum(["PREGNANCY_SCARE", "MENTAL_HEALTH", "STD_PANIC", "GENERAL_SICK"]),
+  id: z.enum([
+    "PREGNANCY_SCARE",
+    "MENTAL_HEALTH",
+    "STD_PANIC",
+    "GENERAL_SICK",
+    "TRIAGE_URTI",
+    "TRIAGE_GASTRO",
+    "TRIAGE_CHEST",
+    "TRIAGE_HEADACHE",
+    "TRIAGE_ANKLE",
+  ]),
   label: z.string(),
   description: z.string(),
   sources: z.array(z.string()),
